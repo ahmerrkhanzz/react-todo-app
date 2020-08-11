@@ -1,24 +1,57 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import "./App.css";
+import { TextField, Button } from "@material-ui/core";
+import Todo from "./Todo";
+import db from "./firebase";
+import firebase from "firebase";
 
 function App() {
+  const [input, setInput] = useState("");
+  const [todos, setTodos] = useState([]);
+
+  useEffect(() => {
+    db.collection("todos")
+      .orderBy("timestamp", "desc")
+      .onSnapshot((snapshot) => {
+        setTodos(
+          snapshot.docs.map((doc) => ({ id: doc.id, text: doc.data().todo }))
+        );
+      });
+  }, []);
+
+  const addTodo = (event) => {
+    event.preventDefault();
+    db.collection("todos").add({
+      todo: input,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    setInput("");
+  };
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+      <h1>React Todo List App</h1>
+      <form noValidate autoComplete="off">
+        <TextField
+          id="standard-basic"
+          label="Write Task"
+          value={input}
+          onChange={(event) => {
+            setInput(event.target.value);
+          }}
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          disabled={!input}
+          onClick={addTodo}
+          type="submit"
         >
-          Learn React
-        </a>
-      </header>
+          Add
+        </Button>
+      </form>
+      {todos.map((todo) => (
+        <Todo todo={todo} key={todo.id} />
+      ))}
     </div>
   );
 }
