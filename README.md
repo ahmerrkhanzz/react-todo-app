@@ -1,4 +1,6 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+The project is deployed on:
+https://todo-app-react-b8245.web.app
 
 ## Available Scripts
 
